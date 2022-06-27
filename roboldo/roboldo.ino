@@ -260,8 +260,6 @@ void setup()
   //iniciar comunicação serial
   Serial.begin(19200);
 
-
-
 }
 
 //***************
@@ -269,7 +267,6 @@ void setup()
 //***************
 void loop()
 {
-
 
   char olhos[TAM_OLHOS] = {';', ':', '8'};
   char bocas[TAM_BOCAS] = {')', '|', '(', 'd', 'o'};
