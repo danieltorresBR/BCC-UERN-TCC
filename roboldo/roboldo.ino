@@ -5,6 +5,7 @@
 //incluir bibliotecas
 #include "LedControl.h"
 
+
 LedControl lc = LedControl(13, 12, 11, 5); //Pino 13 = DIN, Pino 12 = CLK, Pino 11 = CS. 5 = número de displays
 
 #define TAM_OLHOS 3
@@ -258,6 +259,7 @@ void setup()
 
   //iniciar comunicação serial
   Serial.begin(19200);
+
 }
 
 //***************
