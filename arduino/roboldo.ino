@@ -1,3 +1,5 @@
+
+
 // LED display v2.0 por Daniel Torres.
 // As adaptações da versão original foram necessárias para que o desenvolvimento das emoções fiquem dentro do escopo definido do projeto de TCC da Graduação em Ciência da Computação.
 // TCC intitulado: "Desenvolvimento de um Robô Social para Estudo das Emoções"
@@ -6,8 +8,9 @@
 #include "LedControl.h"
 
 LedControl lc = LedControl(13, 12, 11, 5); //Pino 13 = DIN, Pino 12 = CLK, Pino 11 = CS. 5 = número de displays
+bool loopExecuted = false;
 
-#define TAM_OLHOS 3
+#define TAM_OLHOS 2
 #define TAM_BOCAS 5
 #define TAM_EMOCOES 16
 
@@ -265,59 +268,87 @@ void setup()
 //***************
 void loop()
 {
+  if (!loopExecuted) {
+    delay(5000);
+    Serial.println("play_audio");
+    for (int t=0; t < 24; t++) {
+      display_eyes(neutral_eye, neutral_eye);
+      if((t%2)==0){      
+          display_mouth(neutral_mouth);
+          delay(1000);
+      }else {
+          display_mouth(very_happy_mouth);
+          delay(1000);
+      }
+    }
 
-  char olhos[TAM_OLHOS] = {';', ':', '8'};
-  char bocas[TAM_BOCAS] = {')', '|', '(', 'd', 'o'};
-  String emocoes[TAM_EMOCOES] = {";)", ":)", "8)", ";|", ":|", "8|", ";(", ":(", "8(", ";d", ":d", "8d", ";o", ":o", "8o"};
+    apagar_leds(); // apaga todos os LEDs
 
-  //  for (int k = 0; k < TAM_EMOCOES; k++) {
-  //    Serial.println(emocoes[k]);
-  //    delay(5000);
-  //  }
+    delay(2000);
+    
+    char olhos[TAM_OLHOS] = {'8', ':'};
+    char bocas[TAM_BOCAS] = {')', '(', '|', 'o', 'D'};
+  
+    for (int i = 0; i < TAM_OLHOS; i++) {
+      for (int j = 0; j < TAM_BOCAS; j++) {
+          
+        char cmd = olhos[i];
+        char cmd2 = bocas[j];
 
+        Serial.println("aprsEmocao");
+  
+        if (cmd == ':') {
+          display_eyes(neutral_eye, neutral_eye);
+        }
+        if (cmd == '8') {
+          display_eyes(spooky_eye, spooky_eye);
+        }
+        if (cmd2 == ')') {
+          display_mouth(happy_mouth);
+        }
+        if (cmd2 == '(') {
+          display_mouth(sad_mouth);
+        }
+        if (cmd2 == 'D') {
+          display_mouth(very_happy_mouth);
+        }
+        if (cmd2 == 'o') {
+          display_mouth(opened_mouth);
+        }
+        if (cmd2 == '|') {
+          display_mouth(neutral_mouth);
+        }
+        delay(10000); //tempo entre emoções
+      }
+    }
 
-  for (int i = 0; i < TAM_OLHOS; i++) {
-    for (int j = 0; j < TAM_BOCAS; j++) {
-      Serial.println(olhos[i]);
-      Serial.println(bocas[j]);
-      delay(2000);
-      //    }
-      //  }
-      //
-      //  if (Serial.available())  //verificar se foi recebido algum dado
-      //  {
+    Serial.println("play_audio_fim");
+    for (int t=0; t < 9; t++) {
+      display_eyes(neutral_eye, neutral_eye);
+      if((t%2)==0){      
+          display_mouth(neutral_mouth);
+          delay(1000);
+      }else {
+          display_mouth(very_happy_mouth);
+          delay(1000);
+      }
+    }
 
-      char cmd = olhos[i];
-      char cmd2 = bocas[j];
+    delay(1000);
+    display_eyes (neutral_eye, neutral_eye);
+    delay(500);
+    display_eyes (neutral_eye, closed_eye_up);
+    delay(500);
+    display_eyes (neutral_eye, neutral_eye);
+    display_mouth(very_happy_mouth);
+    delay(1000);
 
-      if (cmd == ':') {
-        display_eyes(neutral_eye, neutral_eye);
-      }
-      if (cmd == ';') {
-        display_eyes(neutral_eye, closed_eye_up);
-      }
-      if (cmd == '8') {
-        display_eyes(spooky_eye, spooky_eye);
-      }
-      if (cmd2 == ')') {
-        display_mouth(happy_mouth);
-      }
-      if (cmd2 == '(') {
-        display_mouth(sad_mouth);
-      }
-      if ((cmd2 == 'D') || (cmd2 == 'd')) {
-        display_mouth(very_happy_mouth);
-      }
-      if ((cmd2 == 'p') || (cmd2 == 'P')) {
-        display_mouth(tongue_mouth);
-      }
-      if ((cmd2 == 'o') || (cmd2 == 'O')) {
-        display_mouth(opened_mouth);
-      }
-      if (cmd2 == '|') {
-        display_mouth(neutral_mouth);
-      }
-
+    apagar_leds(); // apaga todos os LEDs
+    loopExecuted = true;
+  }
+  if (Serial.available() > 0) { // Verifica se há dados disponíveis para leitura
+    if (Serial.read() == '\n') { // Lê o próximo byte disponível e verifica se é o caractere de quebra de linha ('\n')
+       loopExecuted = false; // Reseta a variável para que o loop seja executado 
     }
   }
 }
@@ -342,4 +373,13 @@ void display_mouth(byte mouth[]) {
     lc.setRow(3, i, mouth[i + 8]);
     lc.setRow(4, i, mouth[i + 16]);
   }
+}
+
+// apaga todos os LEDs
+void apagar_leds() {
+    lc.clearDisplay(0); 
+    lc.clearDisplay(1);
+    lc.clearDisplay(2);
+    lc.clearDisplay(3);
+    lc.clearDisplay(4);
 }
